@@ -68,8 +68,14 @@ class JSExpr:
             return self
 
     async def __call__(self, *args):
-        obj, meth = str(self).rsplit(".", 1)
-        return await self.__jws.call(JSExpr(obj), meth, args)
+        arr = str(self).rsplit(".", 1)
+        if len(arr) == 1:
+            obj = None
+            meth = arr[0]
+        else:
+            obj, meth = arr
+            obj = JSExpr(obj)
+        return await self.__jws.call(obj, meth, args)
 
     def __str__(self):
         return self.__e

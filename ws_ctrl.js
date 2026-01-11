@@ -100,7 +100,9 @@ const WsCtrl = (function() {
                         break;
                     }
                     case 'call': {
-                        const evaledObj = eval(data.obj);
+                        let evaledObj = eval(data.obj);
+                        if (evaledObj === null)
+                            evaledObj = window;
                         const evaluatedArgs = data.args.map(arg => eval(arg));
                         const res = evaledObj[data.method](...evaluatedArgs);
                         if (debug)
