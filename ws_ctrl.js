@@ -201,6 +201,7 @@ const WsCtrl = (function() {
         init: init,
         addEventTranscoder: addEventTranscoder,
         setDebug: setDebug,
+        sendEvent: sendEvent,
     }
 
 })();
