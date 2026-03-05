@@ -44,6 +44,9 @@ class JWS:
         return await self.future_result(msg_id)
 
     async def assign(self, lhs, value):
+        # As we can't assign to string, treat it as expression
+        if isinstance(lhs, str):
+            lhs = JSExpr(lhs)
         msg = {"msg_type": "assign", "lhs": self.map_arg(lhs), "value": value}
         return await self.msg(msg)
 
