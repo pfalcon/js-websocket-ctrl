@@ -47,7 +47,7 @@ class JWS:
         # As we can't assign to string, treat it as expression
         if isinstance(lhs, str):
             lhs = JSExpr(lhs)
-        msg = {"msg_type": "assign", "lhs": self.map_arg(lhs), "value": value}
+        msg = {"msg_type": "assign", "lhs": self.map_arg(lhs), "value": self.map_arg(value)}
         return await self.msg(msg)
 
     async def future_result(self, msg_id):

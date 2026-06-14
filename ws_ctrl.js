@@ -112,7 +112,7 @@ const WsCtrl = (function() {
                         break;
                     }
                     case 'assign': {
-                        dynaAssign(data.lhs, data.value)
+                        dynaAssign(data.lhs, eval(data.value))
                         break;
                     }
                     case 'exec': {
