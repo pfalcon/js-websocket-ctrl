@@ -39,6 +39,8 @@ class JWS:
         return await self.msg(msg)
 
     async def eval(self, expr):
+        if isinstance(expr, JSExpr):
+            expr = str(expr)
         msg = {"msg_type": "eval", "expr": expr}
         msg_id = await self.msg(msg)
         return await self.future_result(msg_id)
