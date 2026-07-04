@@ -99,7 +99,8 @@ const WsCtrl = (function() {
                         eval(data.obj)[data.method](data.event_type, sendEvent);
                         break;
                     }
-                    case 'call': {
+                    case 'call':
+                    case 'callv': {
                         let evaledObj = eval(data.obj);
                         if (evaledObj === null)
                             evaledObj = window;
@@ -107,8 +108,9 @@ const WsCtrl = (function() {
                         const res = evaledObj[data.method](...evaluatedArgs);
                         if (debug)
                             console.log("WsCtrl: Call result:", res);
-                        //const message = JSON.stringify({msg_type: "res", msg_id: data.msg_id, res: res});
-                        //socket.send(message);
+                        if (data.msg_type === 'callv') {
+                            sendMsg({msg_type: "res", msg_id: data.msg_id, res: res});
+                        }
                         break;
                     }
                     case 'assign': {
