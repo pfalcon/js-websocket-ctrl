@@ -82,6 +82,9 @@ class JSExpr:
             obj = JSExpr(obj)
         return await self.__jws.call(obj, meth, args)
 
+    def __await__(self):
+        return self.__jws.eval(self).__await__()
+
     def __str__(self):
         return self.__e
 
