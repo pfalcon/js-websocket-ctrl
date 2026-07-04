@@ -4,6 +4,15 @@ import json
 import logging
 
 
+class JWSVoid:
+
+    def __str__(self):
+        return "<JWSVoid This is discarded value of JS-side function call. If you need return value, use 'await (+js.foo())' syntax.>"
+
+
+_JWSVOID = JWSVoid()
+
+
 class JWS:
 
     def __init__(self, ws):
@@ -32,7 +41,14 @@ class JWS:
     async def call(self, obj, method, args):
         outargs = [self.map_arg(arg) for arg in args]
         msg = {"msg_type": "call", "obj": self.map_arg(obj), "method": method, "args": outargs}
-        return await self.msg(msg)
+        await self.msg(msg)
+        return _JWSVOID
+
+    async def callv(self, obj, method, args):
+        outargs = [self.map_arg(arg) for arg in args]
+        msg = {"msg_type": "callv", "obj": self.map_arg(obj), "method": method, "args": outargs}
+        msg_id = await self.msg(msg)
+        return await self.future_result(msg_id)
 
     async def exec(self, expr):
         msg = {"msg_type": "exec", "expr": expr}
@@ -63,6 +79,8 @@ class JSExpr:
     def __init__(self, e=None, jws=None):
         self.__e = e
         self.__jws = jws
+        self.__need_val = False
+        self.__meth = None
 
     def __getattr__(self, attr):
         if self.__e is None:
@@ -72,7 +90,7 @@ class JSExpr:
             self.__e += "." + attr
             return self
 
-    async def __call__(self, *args):
+    def __call__(self, *args):
         arr = str(self).rsplit(".", 1)
         if len(arr) == 1:
             obj = None
@@ -80,10 +98,22 @@ class JSExpr:
         else:
             obj, meth = arr
             obj = JSExpr(obj)
-        return await self.__jws.call(obj, meth, args)
+        self.__meth = meth
+        self.__obj = obj
+        self.__args = args
+        return self
+
+    def __pos__(self):
+        self.__need_val = True
+        return self
 
     def __await__(self):
-        return self.__jws.eval(self).__await__()
+        if self.__meth is None:
+            return self.__jws.eval(self).__await__()
+        if self.__need_val:
+            return self.__jws.callv(self.__obj, self.__meth, self.__args).__await__()
+        else:
+            return self.__jws.call(self.__obj, self.__meth, self.__args).__await__()
 
     def __str__(self):
         return self.__e
