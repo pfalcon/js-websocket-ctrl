@@ -146,7 +146,8 @@ async def _websocket_handler(websocket, handle_event):
                 if fut is None:
                     logging.warning("Received result for msg_id=%d, but no future registered", event["msg_id"])
                 else:
-                    fut.set_result(event["res"])
+                    # "res" may be absent if it was JS undefined
+                    fut.set_result(event.get("res"))
             else:
                 asyncio.create_task(handle_event(jws, js, event))
 
