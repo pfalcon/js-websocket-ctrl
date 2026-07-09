@@ -25,7 +25,7 @@ class JWS:
         if isinstance(arg, JSExpr):
             arg = str(arg)
         elif isinstance(arg, str):
-            arg = "'%s'" % arg.replace("'", "\\'")
+            arg = json.dumps(arg)
         return arg
 
     async def msg(self, msg):
